@@ -1,0 +1,49 @@
+[window]
+decorations="Buttonless"
+opacity = 1.00
+# opacity = 0.95
+startup_mode = "Maximized"
+decorations_theme_variant = "None"
+option_as_alt = "Both"
+
+[font]
+normal = { family = "FiraMono Nerd Font Mono", style = "Regular" }
+size = 11.00
+
+[colors]
+cursor = { text = "CellBackground", cursor = "#CBC3E3"}
+
+# Colors (One Dark)
+
+# Default colors
+[colors.primary]
+background = '#181824'
+foreground = '#f6f6f6'
+
+# Normal colors
+[colors.normal]
+black   = '#1e2127'
+red     = '#e06c75'
+green   = '#98ff79'
+yellow  = '#d19a66'
+blue    = '#61afef'
+magenta = '#c678dd'
+cyan    = '#56b6c2'
+white   = '#abb2bf'
+
+# Bright colors
+[colors.bright]
+black   = '#5c6370'
+red     = '#e06c75'
+green   = '#98ff79'
+yellow  = '#d19a66'
+blue    = '#61afef'
+magenta = '#c678dd'
+cyan    = '#56b6c2'
+white   = '#ffffff'
+
+[scrolling]
+history = 99999
+
+[hints]
+enabled = []

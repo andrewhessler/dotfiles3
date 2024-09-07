@@ -1,0 +1,9 @@
+# Pi agent - machine-specific files
+.pi/agent/node_modules/
+.pi/agent/**/node_modules/
+.pi/agent/screenshot.jpg
+.pi/agent/**/screenshot.jpg
+.pi/agent/pi-debug.log
+.pi/agent/auth.json
+.pi/agent/sessions/
+.pi/agent/cache/

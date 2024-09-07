@@ -1,0 +1,10 @@
+{
+  "name": "browser-screenshot",
+  "version": "1.0.0",
+  "description": "Browser screenshot skill for pi-coding-agent",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {
+    "puppeteer": "^24.0.0"
+  }
+}

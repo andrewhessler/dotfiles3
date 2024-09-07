@@ -1,0 +1,20 @@
+[settings]
+activate_aggressive = true
+experimental = true
+
+[settings.status]
+missing_tools = "always"
+show_tools = true
+
+[tools]
+bun = "latest"
+node = "22"
+python = "latest"
+ripgrep = "13"
+yadm = "latest"
+yarn = "latest"
+pnpm = "latest"
+lua = "latest"
+deno = "latest"
+dotnet = "8"
+go = "latest"

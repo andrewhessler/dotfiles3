@@ -1,0 +1,5 @@
+- Use ripgrep instead of grep for searching
+- When creating a plan, always write the contents to plan.md in the root of the current repo
+- When making PRs, if the branch name has ME-# in it, use that as the PR title "ME-# : <description>" 
+    - Always open the PR in draft
+    - Additionally, only provide an overview and list of changes, do not mention testing or individual file changes
