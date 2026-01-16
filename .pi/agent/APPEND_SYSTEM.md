@@ -1,4 +1,5 @@
 - Use ripgrep instead of grep for searching
+- Do not use conventional commit syntax, keep commits concise and informative, the classification of the work like that is unnecessary
 - When creating a plan, always write the contents to plan.md in the root of the current repo
 - When making PRs, if the branch name has ME-# in it, use that as the PR title "ME-# : <description>" 
     - Always open the PR in draft
