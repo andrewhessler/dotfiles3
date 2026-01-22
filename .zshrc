@@ -88,17 +88,16 @@ alias ll="ls -alG"
 # # HIST_STAMPS="mm/dd/yyyy"
 
 # # Would you like to use another custom folder than $ZSH/custom?
-# # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # # Which plugins would you like to load?
 # # Standard plugins can be found in $ZSH/plugins/
 # # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # # Example format: plugins=(rails git textmate ruby lighthouse)
 # # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+# plugins=(git)
 # echo "added a git plugin"
 
-source $HOME/.oh-my-zsh/oh-my-zsh.sh
+# source $HOME/.oh-my-zsh/oh-my-zsh.sh
 # echo "fpath update"
 
 # # User configuration
@@ -129,13 +128,15 @@ source $HOME/.oh-my-zsh/oh-my-zsh.sh
 
 
 # # Example Sources without oh-my-zsh, just they're still in the oh-my-zsh directory, but it's not enabled if you comment the source out up there ^^^
-source $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $HOME/.oh-my-zsh/custom/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-source $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+# source $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# source $HOME/.oh-my-zsh/custom/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+# source $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 # echo "sourced zsh plugins"
-# source $ZSH_CUSTOM/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# source $ZSH_CUSTOM/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-# source $ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+export ZSH_CUSTOM=~/.zsh
+source $ZSH_CUSTOM/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $ZSH_CUSTOM/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+source $ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 alias js='~/.pscripts/journal-sync.sh'
 alias ds='~/.pscripts/dotfiles-sync.sh'
 alias ss='js; ds; newsboat -x reload; newsboat -x print-unread;'
