@@ -1,0 +1,12 @@
+{
+  "name": "web-search-skill",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "search": "node scripts/search.js",
+    "content": "node scripts/content.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
