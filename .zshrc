@@ -190,6 +190,7 @@ alias ghcs="gh copilot suggest"
 alias c="code"
 alias y3="echo \"Setting yarn version to 3\" && pushd ~ 1>/dev/null && yarn set version 3 1>/dev/null && popd 1>/dev/null"
 alias rf="rustfmt ./**/*.rs"
+alias webserver="python3 -m http.server 8080"
 
 
 # export PNPM_HOME="$HOME/Library/pnpm"
