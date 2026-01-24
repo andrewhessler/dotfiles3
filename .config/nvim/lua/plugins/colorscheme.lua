@@ -10,7 +10,17 @@ return {
     priority = 1000,
     config = function()
       require('onedark').setup({
-        transparent = true
+        transparent = true,
+        style = 'dark',
+        -- highlights = {
+        --   htmlTag = { fg = "$purple" },
+        --   htmlTagName = { fg = "$purple" },
+        --   Special = { fg = "$purple" },
+        --   Identifier = { fg = "$purple" },
+        --   Normal = { fg = "#abb2bf" },
+        --   typescriptBraces = { fg = "#abb2bf" },
+        --   typescriptParens = { fg = "#abb2bf" }
+        -- }
       })
       local color_override = "onedark"
       vim.cmd.colorscheme(color_override)
