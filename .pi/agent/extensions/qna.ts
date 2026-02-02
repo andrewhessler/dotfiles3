@@ -241,7 +241,7 @@ export default function qna(pi: ExtensionAPI) {
       "Ask the user a series of questions one at a time. Each question is answered individually before moving to the next. Use this when you have multiple clarifying questions and want to collect all answers before proceeding.",
     parameters: AnswerQuestionsParams,
 
-    async execute(_toolCallId, params, _onUpdate, ctx, _signal) {
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       if (!ctx.hasUI) {
         return {
           content: [{ type: "text", text: "Error: UI not available (running in non-interactive mode)" }],
