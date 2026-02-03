@@ -1,6 +1,4 @@
 - Use ripgrep instead of grep for searching
-- Do not use conventional commit syntax, keep commits concise and informative, the classification of the work like that is unnecessary
 - When creating a plan, always write the contents to plan.md in the root of the current repo
-- When making PRs, if the branch name has ME-# in it, use that as the PR title "ME-# : <description>" 
-    - Always open the PR in draft
-    - Additionally, only provide an overview and list of changes, do not mention testing or individual file changes
+- Do not use conventional commit syntax, keep commits concise and informative, the classification of the work like that is unnecessary.
+- You'll usually have access to tmux sessions, typically named `backend` and `frontend`, you can always tmux ls to see what's available though.
