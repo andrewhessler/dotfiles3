@@ -14,7 +14,7 @@ Must be authenticated. Check with:
 acli auth status
 ```
 
-If not authenticated:
+If not authenticated, the user must:
 1. Create an API token at https://id.atlassian.com/manage-profile/security/api-tokens
 2. Log in:
 ```bash
