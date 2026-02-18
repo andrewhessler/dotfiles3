@@ -15,8 +15,10 @@ acli auth status
 ```
 
 If not authenticated:
+1. Create an API token at https://id.atlassian.com/manage-profile/security/api-tokens
+2. Log in:
 ```bash
-acli auth login
+echo <token> | acli jira auth login --site "mysite.atlassian.net" --email "user@atlassian.com" --token
 ```
 
 ## Work Items
