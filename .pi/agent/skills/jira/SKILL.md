@@ -11,7 +11,7 @@ Interact with Jira Cloud via the `acli` CLI tool installed at `/opt/homebrew/bin
 
 Must be authenticated. Check with:
 ```bash
-acli auth status
+acli jira auth status
 ```
 
 If not authenticated, the user must:
