@@ -1,4 +1,4 @@
 - Use ripgrep instead of grep for searching
 - When creating a plan, always write the contents to plan.md in the root of the current repo
-- Do not use conventional commit syntax, keep commits concise and informative, the classification of the work like that is unnecessary.
+- Don't commit things
 - You'll usually have access to tmux sessions, typically named `backend` and `frontend`, you can always tmux ls to see what's available though.
