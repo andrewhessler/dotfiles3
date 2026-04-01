@@ -65,6 +65,7 @@ vim.pack.add({
   "https://github.com/j-hui/fidget.nvim",
 })
 
+require('fidget').setup({})
 --
 -- Features
 --
@@ -103,7 +104,8 @@ vim.api.nvim_set_hl(0, "NvimTreeNormalNC", { bg = "none" })
 -- LSPs
 --
 local function setup_neotest()
-  require("neotest").setup({
+  local neotest = require("neotest")
+  neotest.setup({
     discovery = {
       enabled = false,
     },
@@ -136,14 +138,14 @@ local function setup_neotest()
     output = { open_on_run = true },
   })
   map_callback("n", "<leader>to",
-    function() require("neotest").output.open({ enter = true, auto_close = true }) end)
-  map_callback("n", "<leader>rt", function() require("neotest").run.run() end)
+    function() neotest.output.open({ enter = true, auto_close = true }) end)
+  map_callback("n", "<leader>rt", function() neotest.run.run() end)
 end
 
 -- Better typescript LSP, bypasses some extra layer, same as vtsls, but more bundled.
 -- Prefer to use LSP rather than this plugin, but vtsls was giving me problems.
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = { "ts", "js", "tsx" },
+  pattern = { "typescript", "javascript", "typescriptreact" },
   once = true,
   callback = function()
     require('typescript-tools').setup({})
@@ -153,6 +155,15 @@ vim.api.nvim_create_autocmd('FileType', {
   end
 })
 
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { "typescript", "typescriptreact", "javascript", "html", "css" },
+  once = true,
+  callback = function()
+    if vim.fs.find({ 'tailwind.config.js', 'tailwind.config.ts', 'tailwind.config.cjs', 'tailwind.config.mjs' }, { upward = true, path = vim.fn.getcwd() })[1] then
+      vim.lsp.enable('tailwindcss')
+    end
+  end,
+})
 
 -- Used for live LSP-ish generator while working on nvim config
 vim.api.nvim_create_autocmd('FileType', {
@@ -170,7 +181,7 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = { "rs" },
+  pattern = { "rust" },
   once = true,
   callback = function()
     require('rustaceanvim')
@@ -178,6 +189,11 @@ vim.api.nvim_create_autocmd('FileType', {
   end
 })
 
+require('neominimap')
+map('n', "<leader>mm", "<cmd>Neominimap Toggle<cr>")
+vim.g.neominimap = {
+  auto_enable = false,
+}
 
 vim.api.nvim_create_autocmd('BufRead', {
   callback = function(args)
@@ -212,15 +228,10 @@ vim.api.nvim_create_autocmd('BufRead', {
       return '%2l:%-2v'
     end
 
-    require('neominimap')
-    map('n', "<leader>mm", "<cmd>Neominimap Toggle<cr>")
-    vim.g.neominimap = {
-      auto_enable = false,
-    }
 
     require('nvim-autopairs').setup()
 
-    require('barbar').setup()
+    -- barbar
     map('n', '<A-,>', '<Cmd>BufferPrevious<CR>')
     map('n', '<A-.>', '<Cmd>BufferNext<CR>')
     map('n', '<A-c>', '<Cmd>BufferClose<CR>')
@@ -286,40 +297,25 @@ vim.api.nvim_create_autocmd('BufRead', {
     require('ibl').setup() -- indent blankline, shows line for indents
   end
 })
+
 require('mason').setup()
 require('mason-lspconfig').setup({
   -- vtsls does what typescript-tools does and interacts directly with tsserver rather than going through a slew of APIs? Just prefer LSP over plugin
   ensure_installed = { 'eslint', 'typos_lsp', 'lua_ls', 'zls', 'omnisharp', 'cssmodules_ls', 'cssls', 'tailwindcss', 'wgsl_analyzer' },
   automatic_installation = true,
-  handlers = {
-    -- this first function is the "default handler"
-    -- it applies to every language server without a "custom handler"
-    function(server_name)
-      local capabilities = require('blink-cmp').get_lsp_capabilities()
-      require('lspconfig')[server_name].setup({ capabilities = capabilities })
-    end,
-    ['ts_ls'] = function()
-      -- install this just for tsserver or whatever, don't want to use it as lsp, use typescript_tools instead
-    end,
-    ['rust_analyzer'] = function()
-      -- use rustaceanvim instead
-    end,
-    ['helm_ls'] = function()
-      local lspconfig = require('lspconfig')
-
-      lspconfig.helm_ls.setup {
-        settings = {
-          ['helm-ls'] = {
-            yamlls = {
-              path = "yaml-language-server",
-            }
-          }
-        }
+  automatic_enable = {
+    exclude = { "ts_ls", "rust_analyzer", "tailwindcss" }
+  },
+})
+vim.lsp.config('helm_ls', {
+  settings = {
+    ['helm-ls'] = {
+      yamlls = {
+        path = "yaml-language-server",
       }
-    end
+    }
   }
 })
-require('lspconfig')
 
 vim.o.signcolumn = 'yes'
 
