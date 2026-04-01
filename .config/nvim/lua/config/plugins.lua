@@ -344,9 +344,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 vim.api.nvim_create_user_command("Neogit", function(opts)
   require("neogit").setup({})
-  map("n", "<leader>gs", ":Neogit<cr>")
   require("neogit").open(opts.fargs)
 end, { nargs = "*" })
+map("n", "<leader>gs", ":Neogit<cr>")
 
 
 
