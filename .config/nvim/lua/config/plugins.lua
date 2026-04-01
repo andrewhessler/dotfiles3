@@ -71,14 +71,6 @@ vim.pack.add({
 require('nvim-treesitter').install({ "c", "rust", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
   "javascript", "typescript", "tsx", "zig", "wgsl" })
 
-require('nvim-autopairs').setup()
-
-require('barbar').setup()
-map('n', '<A-,>', '<Cmd>BufferPrevious<CR>')
-map('n', '<A-.>', '<Cmd>BufferNext<CR>')
-map('n', '<A-c>', '<Cmd>BufferClose<CR>')
-
-require('colorizer').setup() -- highlights hexcodes and words with their associated color
 
 require('onedark').setup({
   transparent = true,
@@ -106,84 +98,194 @@ vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
 vim.api.nvim_set_hl(0, "NvimTreeNormal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NvimTreeNormalNC", { bg = "none" })
 
-require('conform').setup({
-  -- Define your formatters
-  formatters_by_ft = {
-    lua = { "stylua" },
-    javascript = { "prettierd", "prettier", stop_after_first = true },
-    typescript = { "prettierd", "prettier", stop_after_first = true },
-  },
-  -- Set default options
-  default_format_opts = {
-    lsp_format = "fallback",
-  },
-  -- Set up format-on-save
-  format_on_save = { timeout_ms = 1200 },
-  -- Customize formatters
-  formatters = {
-    shfmt = {
-      prepend_args = { "-i", "2" },
-    },
-  },
-})
-vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-
-require('gitsigns').setup({
-  current_line_blame = true,
-  current_line_blame_opts = {
-    delay = 1000
-  }
-})
-require('gitblame').setup({
-  enabled = false, -- only using this plugin for pulling blame url, git signs will display the blame
-})
-
-map('n', '<leader>gy', ':GitBlameCopyFileURL<CR>')
-
-require('go-up').setup({
-  respectScrolloff = true
-})
-
-require('ibl').setup() -- indent blankline, shows line for indents
-
 
 --
 -- LSPs
 --
+local function setup_neotest()
+  require("neotest").setup({
+    discovery = {
+      enabled = false,
+    },
+    adapters = {
+      require('neotest-jest')({
+        jestCommand = "node node_modules/.bin/jest",
+        jestConfigFile = function(file)
+          if string.find(file, "/apps/") then
+            return string.match(file, "(.-/[^/]+/)src") .. "jest.config.ts"
+          end
+
+          if string.find(file, "/libs/") then
+            return string.match(file, "(.-/[^/]+/)src") .. "jest.config.ts"
+          end
+
+          return vim.fn.getcwd() .. "/jest.config.ts"
+        end,
+        env = { CI = true },
+        cwd = function(path)
+          return vim.fn.getcwd()
+        end,
+      }),
+      require('neotest-zig')({
+        dap = {
+          adapter = "lldb",
+        }
+      }),
+      require('rustaceanvim.neotest')
+    },
+    output = { open_on_run = true },
+  })
+  map_callback("n", "<leader>to",
+    function() require("neotest").output.open({ enter = true, auto_close = true }) end)
+  map_callback("n", "<leader>rt", function() require("neotest").run.run() end)
+end
 
 -- Better typescript LSP, bypasses some extra layer, same as vtsls, but more bundled.
 -- Prefer to use LSP rather than this plugin, but vtsls was giving me problems.
-require('typescript-tools').setup({})
-map('n', '<leader>tir', '<cmd>TSToolsRemoveUnusedImports<cr>')
-map('n', '<leader>tia', '<cmd>TSToolsAddMissingImports<cr>')
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { "ts", "js", "tsx" },
+  once = true,
+  callback = function()
+    require('typescript-tools').setup({})
+    map('n', '<leader>tir', '<cmd>TSToolsRemoveUnusedImports<cr>')
+    map('n', '<leader>tia', '<cmd>TSToolsAddMissingImports<cr>')
+    setup_neotest()
+  end
+})
+
 
 -- Used for live LSP-ish generator while working on nvim config
-require('lazydev').setup({
-  library = {
-    -- See the configuration section for more details
-    -- Load luvit types when the `vim.uv` word is found
-    { path = "${3rd}/luv/library", words = { "vim%.uv" } },
-  },
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { "lua" },
+  once = true,
+  callback = function()
+    require('lazydev').setup({
+      library = {
+        -- See the configuration section for more details
+        -- Load luvit types when the `vim.uv` word is found
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    })
+  end
 })
 
-require('blink-cmp').setup({
-  keymap = { preset = 'super-tab', ['<CR>'] = { 'accept', 'fallback' }, ['<C-l>'] = { 'show' } },
-  completion = {
-    documentation = {
-      auto_show = true,
-      auto_show_delay_ms = 500,
-      treesitter_highlighting = true,
-      update_delay_ms = 100,
-      window = {
-        min_width = 60,
-        max_width = 120,
-        max_height = 100,
-      }
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { "rs" },
+  once = true,
+  callback = function()
+    require('rustaceanvim')
+    setup_neotest()
+  end
+})
+
+
+vim.api.nvim_create_autocmd('BufRead', {
+  callback = function(args)
+    if vim.bo[args.buf].filetype == "oil" then return false end
+    -- Better Around/Inside textobjects
+    --
+    -- Examples:
+    --  - va)  - [V]isually select [A]round [)]paren
+    --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
+    --  - ci'  - [C]hange [I]nside [']quote
+    require('mini.ai').setup { n_lines = 500 }
+
+    -- Add/delete/replace surroundings (brackets, quotes, etc.)
+    --
+    -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
+    -- - sd'   - [S]urround [D]elete [']quotes
+    -- - sr)'  - [S]urround [R]eplace [)] [']
+    require('mini.surround').setup()
+
+    -- Simple and easy statusline.
+    --  You could remove this setup call if you don't like it,
+    --  and try some other statusline plugin
+    local statusline = require 'mini.statusline'
+    -- set use_icons to true if you have a Nerd Font
+    statusline.setup { use_icons = vim.g.have_nerd_font }
+
+    -- You can configure sections in the statusline by overriding their
+    -- default behavior. For example, here we set the section for
+    -- cursor location to LINE:COLUMN
+    ---@diagnostic disable-next-line: duplicate-set-field
+    statusline.section_location = function()
+      return '%2l:%-2v'
+    end
+
+    require('neominimap')
+    map('n', "<leader>mm", "<cmd>Neominimap Toggle<cr>")
+    vim.g.neominimap = {
+      auto_enable = false,
     }
-  },
-  fuzzy = { implementation = "prefer_rust" }
-})
 
+    require('nvim-autopairs').setup()
+
+    require('barbar').setup()
+    map('n', '<A-,>', '<Cmd>BufferPrevious<CR>')
+    map('n', '<A-.>', '<Cmd>BufferNext<CR>')
+    map('n', '<A-c>', '<Cmd>BufferClose<CR>')
+
+    require('colorizer').setup() -- highlights hexcodes and words with their associated color
+
+    require('blink-cmp').setup({
+      keymap = { preset = 'super-tab', ['<CR>'] = { 'accept', 'fallback' }, ['<C-l>'] = { 'show' } },
+      completion = {
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 500,
+          treesitter_highlighting = true,
+          update_delay_ms = 100,
+          window = {
+            min_width = 60,
+            max_width = 120,
+            max_height = 100,
+          }
+        }
+      },
+      fuzzy = { implementation = "prefer_rust" }
+    })
+
+    require('conform').setup({
+      -- Define your formatters
+      formatters_by_ft = {
+        lua = { "stylua" },
+        javascript = { "prettierd", "prettier", stop_after_first = true },
+        typescript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      -- Set default options
+      default_format_opts = {
+        lsp_format = "fallback",
+      },
+      -- Set up format-on-save
+      format_on_save = { timeout_ms = 1200 },
+      -- Customize formatters
+      formatters = {
+        shfmt = {
+          prepend_args = { "-i", "2" },
+        },
+      },
+    })
+    vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+    require('gitsigns').setup({
+      current_line_blame = true,
+      current_line_blame_opts = {
+        delay = 1000
+      }
+    })
+    require('gitblame').setup({
+      enabled = false, -- only using this plugin for pulling blame url, git signs will display the blame
+    })
+
+    map('n', '<leader>gy', ':GitBlameCopyFileURL<CR>')
+
+    require('go-up').setup({
+      respectScrolloff = true
+    })
+
+    require('ibl').setup() -- indent blankline, shows line for indents
+  end
+})
 require('mason').setup()
 require('mason-lspconfig').setup({
   -- vtsls does what typescript-tools does and interacts directly with tsserver rather than going through a slew of APIs? Just prefer LSP over plugin
@@ -239,80 +341,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end
 })
 
--- Better Around/Inside textobjects
---
--- Examples:
---  - va)  - [V]isually select [A]round [)]paren
---  - yinq - [Y]ank [I]nside [N]ext [Q]uote
---  - ci'  - [C]hange [I]nside [']quote
-require('mini.ai').setup { n_lines = 500 }
 
--- Add/delete/replace surroundings (brackets, quotes, etc.)
---
--- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
--- - sd'   - [S]urround [D]elete [']quotes
--- - sr)'  - [S]urround [R]eplace [)] [']
-require('mini.surround').setup()
+vim.api.nvim_create_user_command("Neogit", function(opts)
+  require("neogit").setup({})
+  map("n", "<leader>gs", ":Neogit<cr>")
+  require("neogit").open(opts.fargs)
+end, { nargs = "*" })
 
--- Simple and easy statusline.
---  You could remove this setup call if you don't like it,
---  and try some other statusline plugin
-local statusline = require 'mini.statusline'
--- set use_icons to true if you have a Nerd Font
-statusline.setup { use_icons = vim.g.have_nerd_font }
 
--- You can configure sections in the statusline by overriding their
--- default behavior. For example, here we set the section for
--- cursor location to LINE:COLUMN
----@diagnostic disable-next-line: duplicate-set-field
-statusline.section_location = function()
-  return '%2l:%-2v'
-end
-
-require('neominimap')
-map('n', "<leader>nm", "<cmd>Neominimap Toggle<cr>")
-vim.g.neominimap = {
-  auto_enable = false,
-}
-
-require('neogit').setup({})
-map("n", "<leader>gs", ":Neogit<cr>")
-
-require("neotest").setup({
-  discovery = {
-    enabled = false,
-  },
-  adapters = {
-    require('neotest-jest')({
-      jestCommand = "node node_modules/.bin/jest",
-      jestConfigFile = function(file)
-        if string.find(file, "/apps/") then
-          return string.match(file, "(.-/[^/]+/)src") .. "jest.config.ts"
-        end
-
-        if string.find(file, "/libs/") then
-          return string.match(file, "(.-/[^/]+/)src") .. "jest.config.ts"
-        end
-
-        return vim.fn.getcwd() .. "/jest.config.ts"
-      end,
-      env = { CI = true },
-      cwd = function(path)
-        return vim.fn.getcwd()
-      end,
-    }),
-    require('neotest-zig')({
-      dap = {
-        adapter = "lldb",
-      }
-    }),
-    require('rustaceanvim.neotest')
-  },
-  output = { open_on_run = true },
-})
-vim.keymap.set("n", "<leader>to",
-  function() require("neotest").output.open({ enter = true, auto_close = true }) end)
-vim.keymap.set("n", "<leader>rt", function() require("neotest").run.run() end)
 
 -- nvim tree
 local function edit_or_open()
@@ -352,7 +388,7 @@ local function my_on_attach(bufnr)
     return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
   end
 
-  api.config.mappings.default_on_attach(bufnr)
+  api.map.on_attach.default(bufnr)
   vim.keymap.set("n", "l", edit_or_open, opts("Edit Or Open"))
   vim.keymap.set("n", "L", vsplit_preview, opts("Vsplit Preview"))
   vim.keymap.set("n", "h", api.tree.close, opts("Close"))
@@ -382,7 +418,6 @@ local api = require("nvim-tree.api")
 
 vim.keymap.set("n", "<C-e>", ":NvimTreeFocus<cr>", { silent = true, noremap = true })
 
-
 api.events.subscribe(api.events.Event.TreeOpen, function()
   local tree_winid = api.tree.winid()
 
@@ -391,66 +426,85 @@ api.events.subscribe(api.events.Event.TreeOpen, function()
   end
 end)
 
-require("telescope").load_extension("smart_open")
-map('n', '<C-f>', '<cmd>Telescope smart_open<cr>')
+local function ensure_telescope()
+  require("telescope").load_extension("smart_open")
 
-local telescope = require("telescope")
-local builtin = require('telescope.builtin')
-local lga_actions = require("telescope-live-grep-args.actions")
-local live_grep_args_shortcuts = require("telescope-live-grep-args.shortcuts")
+  local telescope = require("telescope")
+  local lga_actions = require("telescope-live-grep-args.actions")
 
-map_callback('n', '<leader>fp', builtin.find_files)
--- vim.keymap.set('n', '<C-f>', builtin.git_files, {})
--- vim.keymap.set('n', '<leader>fs', builtin.live_grep, {})
-map('n', '<leader>fg', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
-map('n', '<leader>u', '<cmd>Telescope undo<cr>')
-map_callback("n", "<leader>ff", live_grep_args_shortcuts.grep_word_under_cursor)
 
-local open_with_trouble = require("trouble.sources.telescope").open
+  local open_with_trouble = require("trouble.sources.telescope").open
 
-telescope.setup({
-  defaults = {
-    mappings = {
-      i = { ["<c-t>"] = open_with_trouble },
-      n = { ["<c-t>"] = open_with_trouble },
-    },
-  },
-})
-
--- Calling telescope's setup from multiple specs does not hurt, it will happily merge the
--- configs for us. We won't use data, as everything is in it's own namespace (telescope
--- defaults, as well as each extension).
-telescope.setup({
-  extensions = {
-    live_grep_args = {
-      auto_quoting = true,
+  telescope.setup({
+    defaults = {
       mappings = {
-        i = {
-          ["<C-k>"] = lga_actions.quote_prompt(),
-          ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
-          -- freeze the current list and start a fuzzy search in the frozen list
-          ["<C-space>"] = lga_actions.to_fuzzy_refine,
-        }
-      }
-    },
-    undo = {
-      side_by_side = true,
-      layout_strategy = "vertical",
-      layout_config = {
-        preview_height = 0.8,
+        i = { ["<c-t>"] = open_with_trouble },
+        n = { ["<c-t>"] = open_with_trouble },
       },
     },
-    fzf = {
-      fuzzy = true,
-      override_generic_sorter = true,
-      override_file_sorter = true,
-      case_mode = "smart_case",
+  })
+
+  -- Calling telescope's setup from multiple specs does not hurt, it will happily merge the
+  -- configs for us. We won't use data, as everything is in it's own namespace (telescope
+  -- defaults, as well as each extension).
+  telescope.setup({
+    extensions = {
+      live_grep_args = {
+        auto_quoting = true,
+        mappings = {
+          i = {
+            ["<C-k>"] = lga_actions.quote_prompt(),
+            ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+            -- freeze the current list and start a fuzzy search in the frozen list
+            ["<C-space>"] = lga_actions.to_fuzzy_refine,
+          }
+        }
+      },
+      undo = {
+        side_by_side = true,
+        layout_strategy = "vertical",
+        layout_config = {
+          preview_height = 0.8,
+        },
+      },
+      fzf = {
+        fuzzy = true,
+        override_generic_sorter = true,
+        override_file_sorter = true,
+        case_mode = "smart_case",
+      }
     }
-  }
-})
-telescope.load_extension("undo")
-telescope.load_extension("live_grep_args")
-telescope.load_extension("fzf")
+  })
+  telescope.load_extension("undo")
+  telescope.load_extension("live_grep_args")
+  telescope.load_extension("fzf")
+end
+
+map_callback('n', '<leader>fp', function()
+  ensure_telescope()
+  local builtin = require('telescope.builtin')
+  builtin.find_files()
+end)
+map_callback('n', '<C-f>', function()
+  ensure_telescope()
+  vim.cmd('Telescope smart_open')
+end)
+-- vim.keymap.set('n', '<C-f>', builtin.git_files, {})
+-- vim.keymap.set('n', '<leader>fs', builtin.live_grep, {})
+map_callback('n', '<leader>fg', function()
+  ensure_telescope()
+  vim.cmd("lua require('telescope').extensions.live_grep_args.live_grep_args()")
+end)
+map_callback('n', '<leader>u', function()
+  ensure_telescope()
+  vim.cmd('Telescope undo')
+end)
+
+map_callback("n", "<leader>ff", function()
+  ensure_telescope()
+  local live_grep_args_shortcuts = require("telescope-live-grep-args.shortcuts")
+  live_grep_args_shortcuts.grep_word_under_cursor()
+end)
 
 map_callback("n", "<leader>?", function()
   require("which-key").show({ global = false })
