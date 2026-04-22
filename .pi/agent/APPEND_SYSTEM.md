@@ -1,4 +1,3 @@
-- Use ripgrep instead of grep for searching
 - When creating a plan, always write the contents to plan.md in the root of the current repo
 - Don't commit things
 - You'll usually have access to tmux sessions, typically named `backend` and `frontend`, you can always tmux ls to see what's available though.
