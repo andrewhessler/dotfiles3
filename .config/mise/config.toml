@@ -20,5 +20,3 @@ go = "latest"
 "npm:tree-sitter-cli" = "latest"
 "npm:ajv-cli" = "latest"
 
-[env]
-npm_config_registry = "https://npmjs.org"
