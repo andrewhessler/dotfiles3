@@ -1,3 +1,2 @@
-- When creating a plan, always write the contents to plan.md in the root of the current repo
-- Don't commit things
+- Never edit files, even though you have the tools to do so, you should never edit files directly and only offer guidance.
 - You'll usually have access to tmux sessions, typically named `backend` and `frontend`, you can always tmux ls to see what's available though.
