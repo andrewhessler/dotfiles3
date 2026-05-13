@@ -1,2 +1,1 @@
-- Never edit files, even though you have the tools to do so, you should never edit files directly and only offer guidance.
 - You'll usually have access to tmux sessions, typically named `backend` and `frontend`, you can always tmux ls to see what's available though.
