@@ -17,6 +17,21 @@ vim.api.nvim_create_autocmd('PackChanged', {
   end
 })
 
+vim.g.rustaceanvim = {
+  server = {
+    default_settings = {
+      ['rust-analyzer'] = {
+        cargo = {
+          extraEnv = { CARGO_TARGET_DIR = 'target/rust-analyzer' },
+        },
+        check = {
+          command = 'clippy',
+        },
+      },
+    },
+  },
+}
+
 vim.pack.add({
   -- Shared
   "https://github.com/nvim-tree/nvim-web-devicons",
