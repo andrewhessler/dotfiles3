@@ -316,7 +316,7 @@ vim.api.nvim_create_autocmd('BufRead', {
 require('mason').setup()
 require('mason-lspconfig').setup({
   -- vtsls does what typescript-tools does and interacts directly with tsserver rather than going through a slew of APIs? Just prefer LSP over plugin
-  ensure_installed = { 'eslint', 'typos_lsp', 'lua_ls', 'zls', 'omnisharp', 'cssmodules_ls', 'cssls', 'tailwindcss', 'wgsl_analyzer' },
+  ensure_installed = { 'eslint', 'typos_lsp', 'lua_ls', 'zls', 'omnisharp', 'cssmodules_ls', 'cssls', 'tailwindcss', 'wgsl_analyzer', 'marksman' },
   automatic_installation = true,
   automatic_enable = {
     exclude = { "ts_ls", "rust_analyzer", "tailwindcss" }
