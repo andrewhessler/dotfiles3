@@ -15,6 +15,14 @@ export PATH="$PATH:/opt/nvim/"
 export CPPFLAGS="-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/"
 export MISE_NPM_PACKAGE_MANAGER="pnpm"
 
+
+export CLAUDE_CODE_USE_FOUNDRY=1
+export ANTHROPIC_FOUNDRY_BASE_URL=https://cloud-engineering-testing.azure-api.net/anthropic
+export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4-6
+export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5
+
+
 if [[ $(uname) == "Darwin" ]]; then
   export BROWSER="open -a Arc";
 fi
@@ -192,6 +200,7 @@ alias c="code"
 alias y3="echo \"Setting yarn version to 3\" && pushd ~ 1>/dev/null && yarn set version 3 1>/dev/null && popd 1>/dev/null"
 alias rf="rustfmt ./**/*.rs"
 alias webserver="python3 -m http.server 8080"
+alias pi="pi -nc"
 
 
 # export PNPM_HOME="$HOME/Library/pnpm"
